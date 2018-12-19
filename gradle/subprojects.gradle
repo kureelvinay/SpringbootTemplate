@@ -1,0 +1,36 @@
+subprojects {
+    apply plugin: 'java'
+    if (!project.name.equals('webapp')) {
+    apply plugin: "io.spring.dependency-management"
+    dependencyManagement {
+      imports {
+        // https://github.com/spring-projects/spring-boot/blob/master/spring-boot-dependencies/pom.xml
+        mavenBom("org.springframework.boot:spring-boot-dependencies:2.1.1.RELEASE")
+      }
+    }
+    dependencies {
+      compile('org.springframework.boot:spring-boot-starter-actuator')
+//      compile('org.springframework.boot:spring-boot-starter-log4j2')
+    }
+  }
+
+    jar {
+        manifest {
+            attributes("Implementation-Title": "MicroserviceTemplate",
+                    "Implementation-Version": "${project.version}")
+        }
+    }
+
+    tasks.addRule("Pattern: listPaths<ConfigurationName>: Prints files in the specified classpath/confoguration.") {
+        String taskName ->
+            if(taskName.startsWith("listPaths")){
+                task(taskName){
+                    doLast {
+                        def config = taskName.replace("listPaths", "")
+                        config = config.replaceFirst(config[0], config[0].toLowerCase());
+                        project.configurations[config].collect{it.toURI()}.sort().each{println it}
+                    }
+                }
+            }
+    }
+}

@@ -1,0 +1,73 @@
+buildscript {
+	ext {
+		springBootVersion = '1.5.8.RELEASE'
+		springDepManVers = '1.0.4.RELEASE'
+	}
+	repositories {
+		mavenLocal()
+		mavenCentral()
+		maven { url "https://repo.spring.io/snapshot" }
+		maven { url "https://repo.spring.io/milestone" }
+
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath ("io.spring.gradle:dependency-management-plugin:${springDepManVers}")
+		classpath ("org.jsonschema2pojo:jsonschema2pojo-gradle-plugin:0.4.33")
+	}
+}
+
+
+allprojects{
+
+	apply plugin: 'java'
+	apply plugin: 'io.spring.dependency-management'
+	apply plugin: 'idea'
+	ext {
+		genSrcDir = "$buildDir/generated-src/main/java"
+	}
+	idea{
+		module{ downloadSources = true}
+	}
+
+	project.group = project_group
+
+	if(!project.hasProperty('buildNumber')){
+		project.version = project_version + "-SNAPSHOT"
+	} else {
+		project.version = project_version + "-${buildNumber}"
+	}
+
+}
+
+apply from: 'gradle/subprojects.gradle'
+
+gradle.beforeProject {prj ->
+	if(!project.hasProperty('buildNumber')) {
+		prj.version = project_version + "-SNAPSHOT"
+	} else {
+		prj.version = project_version + "-${buildNumber}"
+	}
+}
+
+//task dist(type: Zip, dependsOn: [':webapp.war']) {
+//	description 'Create a zip file containing the webapp war and all env bundles.'
+//	archiveName = 'springbootmicroservicetemplate.zip'
+//	destinationDir = file("$rootDir"/build)
+//	from("$rootDir/webapp/build/libs") {
+//		include("**/*.war")
+//	}
+//}
+
+/*
+
+group = 'com.springboot.microservice.template'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+
+repositories {
+	mavenCentral()
+	maven { url "https://repo.spring.io/snapshot" }
+	maven { url "https://repo.spring.io/milestone" }
+}
+*/
